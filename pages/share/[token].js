@@ -55,6 +55,10 @@ export default function SharedPage({ initial, initialError, initialType = 'ALL',
   const [filterMovieCategory, setFilterMovieCategory] = useState(initialMovieCategory);
   const [movieCatOpen,        setMovieCatOpen]        = useState(false);
 
+  const lockType = initialType !== 'ALL';
+  const lockStatus = initialStatus !== 'ALL';
+  const lockCategory = initialMovieCategory !== 'ALL';
+
   if (initialError) {
     return (
       <div className="container">
@@ -80,22 +84,31 @@ export default function SharedPage({ initial, initialError, initialType = 'ALL',
   }, [data?.share_anime, data?.share_series, data?.share_movie]);
 
   const typeTabs = useMemo(() => {
+    // If a type was pre-selected via querystring, lock the UI to it
+    if (lockType) {
+      const t = initialType;
+      return [{ v: t, label: t === 'ANIME' ? '⭐ Anime' : t === 'SERIES' ? '📺 Série' : '🎬 Filme' }];
+    }
     const tabs = [{ v: 'ALL', label: 'Todos' }];
     for (const t of allowedTypes) {
       tabs.push({ v: t, label: t === 'ANIME' ? '⭐ Anime' : t === 'SERIES' ? '📺 Série' : '🎬 Filme' });
     }
     return tabs;
-  }, [allowedTypes]);
+  }, [allowedTypes, lockType, initialType]);
+
+  const effectiveType = lockType ? initialType : filterType;
+  const effectiveStatus = lockStatus ? initialStatus : filterStatus;
+  const effectiveCategory = (lockType && initialType !== 'MOVIE') ? 'ALL' : (lockCategory ? initialMovieCategory : filterMovieCategory);
 
   const filtered = useMemo(() => items
-    .filter((it) => filterType === 'ALL' ? true : it.media_type === filterType)
-    .filter((it) => filterStatus === 'ALL' ? true : it.status === filterStatus)
+    .filter((it) => effectiveType === 'ALL' ? true : it.media_type === effectiveType)
+    .filter((it) => effectiveStatus === 'ALL' ? true : it.status === effectiveStatus)
     .filter((it) => {
-      if (filterType !== 'MOVIE') return true;
-      if (filterMovieCategory === 'ALL') return true;
-      return (it.movie_category ?? 'Outros') === filterMovieCategory;
+      if (effectiveType !== 'MOVIE') return true;
+      if (effectiveCategory === 'ALL') return true;
+      return (it.movie_category ?? 'Outros') === effectiveCategory;
     }),
-  [items, filterType, filterStatus, filterMovieCategory]);
+  [items, effectiveType, effectiveStatus, effectiveCategory]);
 
   const groups = {
     ANIME:  filtered.filter((i) => i.media_type === 'ANIME'),
@@ -171,9 +184,14 @@ export default function SharedPage({ initial, initialError, initialType = 'ALL',
         {/* Type tabs — only show types that are shared */}
         <div className="chips" style={{ marginBottom:10 }}>
           {typeTabs.map((t) => (
-            <button key={t.v} type="button"
-              className={filterType === t.v ? 'chip active' : 'chip'}
-              onClick={() => { setFilterType(t.v); if (t.v !== 'MOVIE') setFilterMovieCategory('ALL'); }}>
+            <button
+              key={t.v}
+              type="button"
+              className={(effectiveType === t.v || (lockType && initialType === t.v)) ? 'chip active' : 'chip'}
+              onClick={() => { if (lockType) return; setFilterType(t.v); if (t.v !== 'MOVIE') setFilterMovieCategory('ALL'); }}
+              disabled={lockType}
+              title={lockType ? 'Filtro fixo no link' : ''}
+            >
               {t.label}
             </button>
           ))}
@@ -182,16 +200,21 @@ export default function SharedPage({ initial, initialError, initialType = 'ALL',
         {/* Status tabs */}
         <div className="chips">
           {STATUS_TABS.map((s) => (
-            <button key={s.v} type="button"
-              className={filterStatus === s.v ? 'chip active' : 'chip'}
-              onClick={() => setFilterStatus(s.v)}>
+            <button
+              key={s.v}
+              type="button"
+              className={effectiveStatus === s.v ? 'chip active' : 'chip'}
+              onClick={() => { if (lockStatus) return; setFilterStatus(s.v); }}
+              disabled={lockStatus}
+              title={lockStatus ? 'Filtro fixo no link' : ''}
+            >
               {s.label}
             </button>
           ))}
         </div>
 
         {/* Movie category button */}
-        {filterType === 'MOVIE' && allowedTypes.includes('MOVIE') ? (
+        {effectiveType === 'MOVIE' && allowedTypes.includes('MOVIE') && !lockCategory ? (
           <div className="row" style={{ justifyContent:'space-between', alignItems:'center', marginTop:12 }}>
             <span style={{ fontWeight:700, fontSize:12, color:'var(--faint)' }}>Categoria</span>
             <button className="btn secondary" type="button" onClick={() => setMovieCatOpen(true)} style={{ fontSize:12 }}>
@@ -213,7 +236,7 @@ export default function SharedPage({ initial, initialError, initialType = 'ALL',
       ) : null}
 
       {/* ── Content ── */}
-      {filterType === 'ALL' ? (
+      {effectiveType === 'ALL' ? (
         <>
           {data?.share_anime  ? section('ANIME',  groups.ANIME)  : null}
           {data?.share_series ? section('SÉRIE',  groups.SERIES) : null}
@@ -221,9 +244,9 @@ export default function SharedPage({ initial, initialError, initialType = 'ALL',
         </>
       ) : (
         <>
-          {filterType === 'ANIME'  ? section('ANIME',  groups.ANIME)  : null}
-          {filterType === 'SERIES' ? section('SÉRIE',  groups.SERIES) : null}
-          {filterType === 'MOVIE'  ? section('FILME',  groups.MOVIE)  : null}
+          {effectiveType === 'ANIME'  ? section('ANIME',  groups.ANIME)  : null}
+          {effectiveType === 'SERIES' ? section('SÉRIE',  groups.SERIES) : null}
+          {effectiveType === 'MOVIE'  ? section('FILME',  groups.MOVIE)  : null}
         </>
       )}
 
