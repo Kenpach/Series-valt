@@ -1,0 +1,57 @@
+html, body { padding: 0; margin: 0; background: radial-gradient(1200px 500px at 20% 0%, rgba(120, 0, 255, 0.18), transparent 60%), radial-gradient(900px 500px at 80% 10%, rgba(0, 180, 255, 0.14), transparent 60%), #070a12; color: #e8ebf5; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif; }
+* { box-sizing: border-box; }
+a { color: inherit; text-decoration: none; }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 18px; }
+
+/* Netflix-ish */
+.card { background: rgba(15, 23, 38, 0.82); border: 1px solid rgba(120,140,190,0.22); border-radius: 14px; padding: 14px; backdrop-filter: blur(10px); }
+.row { display: flex; gap: 12px; flex-wrap: wrap; }
+
+.btn { background: linear-gradient(135deg, #4f7cff, #7c3aed); border: 0; color: white; padding: 10px 14px; border-radius: 12px; cursor: pointer; font-weight: 800; }
+.btn.secondary { background: rgba(20,27,45,0.7); border: 1px solid rgba(120,140,190,0.25); color: #d7dbea; font-weight: 700; }
+.btn.ghost { background: transparent; border: 1px solid rgba(120,140,190,0.25); color: #d7dbea; font-weight: 800; }
+.btn.ghost:hover { background: rgba(20,27,45,0.35); }
+
+/* button feedback */
+.btn.sending { opacity: 0.85; }
+.btn.sent { border-color: rgba(34,197,94,0.55); box-shadow: 0 0 0 4px rgba(34,197,94,0.10); }
+.btn.error { border-color: rgba(239,68,68,0.55); box-shadow: 0 0 0 4px rgba(239,68,68,0.10); }
+
+.btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+.btn.small { padding: 7px 10px; border-radius: 10px; font-weight: 800; font-size: 12px; }
+
+.input { display:block; width: 100%; max-width: 100%; box-sizing:border-box; padding: 12px 12px; border-radius: 12px; border: 1px solid #1f2a44; background: #0b1220; color: #e6e8ee; }
+
+.sectionTitle { margin: 18px 0 10px; font-size: 14px; letter-spacing: 0.16em; color: #b7c0db; }
+
+.grid { display: grid; gap: 10px; grid-template-columns: repeat(10, 1fr); }
+@media (max-width: 1700px) { .grid { grid-template-columns: repeat(8, 1fr); } }
+@media (max-width: 1400px) { .grid { grid-template-columns: repeat(7, 1fr); } }
+@media (max-width: 1200px) { .grid { grid-template-columns: repeat(5, 1fr); } }
+@media (max-width: 1000px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 700px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* Search results: keep cards larger than the catalog grid */
+.searchGrid { grid-template-columns: repeat(6, 1fr); }
+@media (max-width: 1400px) { .searchGrid { grid-template-columns: repeat(5, 1fr); } }
+@media (max-width: 1100px) { .searchGrid { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 800px)  { .searchGrid { grid-template-columns: repeat(2, 1fr); } }
+
+.posterCard { padding: 0; overflow: hidden; border-radius: 14px; border: 1px solid rgba(120,140,190,0.22); background: rgba(11, 18, 32, 0.75); }
+.posterImg { width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block; }
+.posterMeta { padding: 10px 10px 12px; }
+.posterTitle { font-size: 13px; font-weight: 700; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.posterSub { margin-top: 4px; font-size: 12px; opacity: 0.8; }
+
+.badge { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #0b1220; border: 1px solid #1f2a44; font-size: 12px; }
+
+/* modal */
+.modalLabel { display: block; font-size: 12px; opacity: 0.85; margin: 10px 0 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { padding: 8px 10px; border-radius: 999px; border: 1px solid rgba(120,140,190,0.25); background: rgba(11,18,32,0.65); cursor: pointer; font-weight: 800; font-size: 12px; color: #ffffff; }
+.chip.active { background: linear-gradient(135deg, #4f7cff, #7c3aed); border-color: rgba(124,58,237,0.8); color: #ffffff; }
+.stepper { display: flex; gap: 8px; align-items: center; }
+.stepBtn { width: 38px; height: 38px; border-radius: 12px; border: 1px solid #1f2a44; background: #141b2d; color: #d7dbea; font-weight: 800; cursor: pointer; }
+.stepVal { min-width: 80px; text-align: center; font-weight: 800; font-size: 14px; }
