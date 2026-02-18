@@ -173,9 +173,14 @@ export default function Home() {
             ))}
           </div>
           {filterType === 'MOVIE' ? (
-            <div className="row" style={{ justifyContent:'space-between', alignItems:'center', marginTop:12 }}>
-              <span style={{ fontWeight:700, fontSize:12, color:'var(--faint)' }}>Categoria</span>
-              <button className="btn secondary" type="button" onClick={() => setMovieCatOpen(true)} style={{ fontSize:12 }}>
+            <div style={{ marginTop: 14 }}>
+              <div style={{ fontWeight:700, fontSize:12, color:'var(--faint)', marginBottom:8 }}>Categoria</div>
+              <button
+                className="btn secondary"
+                type="button"
+                onClick={() => setMovieCatOpen(true)}
+                style={{ fontSize:12, width: 'fit-content', maxWidth: '100%' }}
+              >
                 {filterMovieCategory === 'ALL' ? 'Todas categorias' : filterMovieCategory}
               </button>
             </div>
