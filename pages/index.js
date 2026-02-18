@@ -23,6 +23,7 @@ export default function Home() {
   const [filterMovieCategory, setFilterMovieCategory] = useState('ALL');
   const [movieCatOpen, setMovieCatOpen] = useState(false);
   const [shareOpen, setShareOpen]       = useState(false);
+  const [onlineCount, setOnlineCount] = useState(null);
   const userId = session?.user?.id;
 
   useEffect(() => {
@@ -50,6 +51,29 @@ export default function Home() {
   }
 
   useEffect(() => { load(); }, [userId]);
+
+  // Presence heartbeat + online count (last 60 minutes)
+  useEffect(() => {
+    if (!userId) return;
+
+    let alive = true;
+
+    async function beat() {
+      try {
+        // upsert presence
+        await supabase.from('user_presence').upsert({ user_id: userId, last_seen_at: new Date().toISOString() });
+        // fetch count
+        const { data, error } = await supabase.rpc('get_online_count', { p_window_minutes: 60 });
+        if (!error && alive) setOnlineCount(data);
+      } catch {
+        // ignore (RLS/network); UI will just not show the count
+      }
+    }
+
+    beat();
+    const t = setInterval(beat, 45000);
+    return () => { alive = false; clearInterval(t); };
+  }, [userId]);
 
   async function signOut() { await supabase.auth.signOut(); }
 
