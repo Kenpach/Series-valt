@@ -136,7 +136,12 @@ export default function Home() {
             <h1 style={{ margin:0, fontSize:22, fontWeight:900, letterSpacing:'-0.02em', background:'linear-gradient(135deg,#eef0fa 40%,#8892b0 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
               Minha lista
             </h1>
-            <span className="badge" style={{ marginTop:4, display:'inline-flex' }}>{session?.user?.email}</span>
+            <div style={{ display:'flex', gap:8, flexWrap:'wrap', marginTop:4 }}>
+              <span className="badge" style={{ display:'inline-flex' }}>{session?.user?.email}</span>
+              {typeof onlineCount === 'number' ? (
+                <span className="badge" style={{ display:'inline-flex' }}>Online (1h): {onlineCount}</span>
+              ) : null}
+            </div>
           </div>
         </div>
         <div className="row">
