@@ -5,8 +5,9 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState('');
-  const [resetState, setResetState] = useState('idle'); // idle|sending|sent|error
+  const [msg, setMsg] = useState({ text: '', type: '' });
+  const [resetState, setResetState] = useState('idle');
+  const [tab, setTab] = useState('signin');
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -14,93 +15,147 @@ export default function Login() {
     });
   }, []);
 
+  function setMessage(text, type = 'info') {
+    setMsg({ text, type });
+  }
+
   async function signIn(e) {
     e.preventDefault();
     setLoading(true);
-    setMsg('');
+    setMsg({ text: '', type: '' });
     const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
     setLoading(false);
-    if (error) return setMsg(error.message);
+    if (error) return setMessage(error.message, 'error');
     window.location.href = '/';
   }
 
   async function signUp(e) {
     e.preventDefault();
     setLoading(true);
-    setMsg('');
+    setMsg({ text: '', type: '' });
     const { error } = await supabase.auth.signUp({ email: email.trim(), password });
     setLoading(false);
-    if (error) return setMsg(error.message);
-    setMsg('Conta criada. Se o e-mail de confirmação estiver habilitado, verifique sua caixa de entrada.');
+    if (error) return setMessage(error.message, 'error');
+    setMessage('Conta criada! Verifique sua caixa de entrada para confirmar.', 'success');
   }
 
+  async function resetPassword() {
+    setResetState('sending');
+    try {
+      const em = email.trim();
+      if (!em) {
+        setResetState('error');
+        return setMessage('Informe seu e-mail para enviar o link de redefinição.', 'error');
+      }
+      const { error } = await supabase.auth.resetPasswordForEmail(em, {
+        redirectTo: `${window.location.origin}/reset`,
+      });
+      if (error) throw error;
+      setResetState('sent');
+      setMessage('Link enviado! Verifique seu e-mail.', 'success');
+    } catch (e) {
+      setResetState('error');
+      setMessage(`Erro: ${e?.message || String(e)}`, 'error');
+    } finally {
+      setTimeout(() => setResetState('idle'), 3000);
+    }
+  }
+
+  const msgStyles = {
+    error:   { bg: 'rgba(239,68,68,0.12)',   border: 'rgba(239,68,68,0.35)',   color: '#f87171' },
+    success: { bg: 'rgba(34,197,94,0.12)',    border: 'rgba(34,197,94,0.35)',   color: '#4ade80' },
+    info:    { bg: 'rgba(99,102,241,0.12)',   border: 'rgba(99,102,241,0.35)',  color: '#a5b4fc' },
+  };
+
+  const ms = msgStyles[msg.type] || msgStyles.info;
+
   return (
-    <div className="container">
-      <h1>Anime Tracker — Login</h1>
-      <p className="badge">MVP (email/senha)</p>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+      <div style={{ width: '100%', maxWidth: 420 }} className="fadeUp">
+        {/* Brand */}
+        <div style={{ textAlign: 'center', marginBottom: 36 }}>
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            width: 60, height: 60, borderRadius: 18,
+            background: 'linear-gradient(135deg, #6366f1, #a855f7)',
+            boxShadow: '0 8px 32px rgba(99,102,241,0.5)',
+            marginBottom: 18, fontSize: 28,
+          }}>✦</div>
+          <h1 style={{
+            fontSize: 30, fontWeight: 900, letterSpacing: '-0.03em',
+            background: 'linear-gradient(135deg, #eef0fa 30%, #8892b0 100%)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+            marginBottom: 8,
+          }}>
+            Anime Tracker
+          </h1>
+          <p style={{ color: 'var(--muted)', fontSize: 14 }}>Sua lista, do seu jeito.</p>
+        </div>
 
-      <div className="card" style={{ maxWidth: 720, width: '100%' }}>
-        <form onSubmit={signIn}>
-          <label>Email</label>
-          <input
-            className="input"
-            name="email"
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            onInput={(e) => setEmail(e.target.value)}
-            placeholder="voce@exemplo.com"
-          />
-          <div style={{ height: 10 }} />
-          <label>Senha</label>
-          <input
-            className="input"
-            name="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onInput={(e) => setPassword(e.target.value)}
-            type="password"
-            placeholder="••••••••"
-          />
-          <div style={{ height: 14 }} />
-
-          <div className="row">
-            <button className="btn" disabled={loading} type="submit">{loading ? '...' : 'Entrar'}</button>
-            <button className="btn secondary" disabled={loading} onClick={signUp} type="button">Criar conta</button>
+        <div className="card" style={{ padding: 28 }}>
+          {/* Tab switcher */}
+          <div style={{
+            display: 'flex', gap: 4,
+            background: 'rgba(0,0,0,0.3)', borderRadius: 12, padding: 4, marginBottom: 24,
+          }}>
+            {[["signin", "Entrar"], ["signup", "Criar conta"]].map(([t, label]) => (
+              <button key={t} type="button" onClick={() => setTab(t)} style={{
+                flex: 1, padding: '9px 12px', borderRadius: 9, border: 'none', cursor: 'pointer',
+                fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 13,
+                transition: 'all 200ms ease',
+                background: tab === t ? 'linear-gradient(135deg, #6366f1, #a855f7)' : 'transparent',
+                color: tab === t ? '#fff' : 'var(--muted)',
+                boxShadow: tab === t ? '0 2px 12px rgba(99,102,241,0.4)' : 'none',
+              }}>
+                {label}
+              </button>
+            ))}
           </div>
 
-          <div style={{ height: 10 }} />
-          <button
-            className={`btn ghost ${resetState === 'sending' ? 'sending' : resetState === 'sent' ? 'sent' : resetState === 'error' ? 'error' : ''}`}
-            disabled={loading || resetState === 'sending'}
-            type="button"
-            onClick={async () => {
-              setResetState('sending');
-              try {
-                const em = (email || '').trim();
-                if (!em) {
-                  setResetState('error');
-                  return setMsg('Informe seu e-mail para enviar o link de redefinição.');
-                }
-                const redirectTo = `${window.location.origin}/reset`;
-                const { error } = await supabase.auth.resetPasswordForEmail(em, { redirectTo });
-                if (error) throw error;
-                setResetState('sent');
-                setMsg('Enviamos um e-mail com o link para redefinir sua senha.');
-              } catch (e) {
-                setResetState('error');
-                setMsg(`Erro ao enviar reset: ${e?.message || String(e)}`);
-              } finally {
-                setTimeout(() => setResetState('idle'), 2500);
-              }
-            }}
-          >
-            {resetState === 'sending' ? 'Enviando…' : resetState === 'sent' ? 'Enviado ✓' : 'Esqueci minha senha'}
-          </button>
+          <form onSubmit={tab === 'signin' ? signIn : signUp}>
+            <div style={{ marginBottom: 14 }}>
+              <label className="modalLabel">E-mail</label>
+              <input className="input" type="email" name="email" autoComplete="email"
+                value={email} onChange={(e) => setEmail(e.target.value)} placeholder="voce@exemplo.com" />
+            </div>
+            <div style={{ marginBottom: 22 }}>
+              <label className="modalLabel">Senha</label>
+              <input className="input" name="password"
+                autoComplete={tab === 'signin' ? 'current-password' : 'new-password'}
+                value={password} onChange={(e) => setPassword(e.target.value)}
+                type="password" placeholder="••••••••" />
+            </div>
+            <button className="btn" disabled={loading} type="submit"
+              style={{ width: '100%', justifyContent: 'center', padding: '12px 18px', fontSize: 14 }}>
+              {loading ? 'Carregando…' : tab === 'signin' ? 'Entrar' : 'Criar conta'}
+            </button>
+          </form>
 
-          {msg ? <p style={{ marginTop: 12 }}>{msg}</p> : null}
-        </form>
+          <div style={{ marginTop: 10 }}>
+            <button
+              className={`btn ghost ${resetState}`}
+              disabled={loading || resetState === 'sending'}
+              type="button" onClick={resetPassword}
+              style={{ width: '100%', justifyContent: 'center', fontSize: 13, marginTop: 6 }}
+            >
+              {resetState === 'sending' ? 'Enviando…' : resetState === 'sent' ? '✓ Link enviado' : 'Esqueci minha senha'}
+            </button>
+          </div>
+
+          {msg.text ? (
+            <div className="fadeIn" style={{
+              marginTop: 16, padding: '10px 14px', borderRadius: 10,
+              background: ms.bg, border: `1px solid ${ms.border}`, color: ms.color,
+              fontSize: 13, fontWeight: 600, lineHeight: 1.5,
+            }}>
+              {msg.text}
+            </div>
+          ) : null}
+        </div>
+
+        <p style={{ textAlign: 'center', marginTop: 20, fontSize: 12, color: 'var(--faint)' }}>
+          Anime Tracker — MVP v1
+        </p>
       </div>
     </div>
   );
