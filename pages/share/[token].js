@@ -41,17 +41,18 @@ export async function getServerSideProps(ctx) {
     // Read filter params from query string so the shared link pre-applies filters
     const initialType   = ctx.query?.type   || 'ALL';
     const initialStatus = ctx.query?.status || 'ALL';
+    const initialMovieCategory = ctx.query?.category || 'ALL';
 
-    return { props: { initial: j, initialError: '', initialType, initialStatus } };
+    return { props: { initial: j, initialError: '', initialType, initialStatus, initialMovieCategory } };
   } catch {
-    return { props: { initial: null, initialError: 'Erro carregando compartilhamento.', initialType: 'ALL', initialStatus: 'ALL' } };
+    return { props: { initial: null, initialError: 'Erro carregando compartilhamento.', initialType: 'ALL', initialStatus: 'ALL', initialMovieCategory: 'ALL' } };
   }
 }
 
-export default function SharedPage({ initial, initialError, initialType = 'ALL', initialStatus = 'ALL' }) {
+export default function SharedPage({ initial, initialError, initialType = 'ALL', initialStatus = 'ALL', initialMovieCategory = 'ALL' }) {
   const [filterType,          setFilterType]          = useState(initialType);
   const [filterStatus,        setFilterStatus]        = useState(initialStatus);
-  const [filterMovieCategory, setFilterMovieCategory] = useState('ALL');
+  const [filterMovieCategory, setFilterMovieCategory] = useState(initialMovieCategory);
   const [movieCatOpen,        setMovieCatOpen]        = useState(false);
 
   if (initialError) {
