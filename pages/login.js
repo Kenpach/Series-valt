@@ -76,20 +76,26 @@ export default function Login() {
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
           gap: 22,
-          alignItems: 'start',
+          alignItems: 'stretch',
         }}>
           {/* Info */}
           <div style={{
             textAlign: 'left',
             padding: 8,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            height: '100%',
           }}>
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              width: 60, height: 60, borderRadius: 18,
-              background: 'linear-gradient(135deg, #6366f1, #a855f7)',
-              boxShadow: '0 8px 32px rgba(99,102,241,0.5)',
-              marginBottom: 18, fontSize: 28,
-            }}>✦</div>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 18 }}>
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                width: 60, height: 60, borderRadius: 18,
+                background: 'linear-gradient(135deg, #6366f1, #a855f7)',
+                boxShadow: '0 8px 32px rgba(99,102,241,0.5)',
+                fontSize: 28,
+              }}>✦</div>
+            </div>
 
             <h1 style={{
               fontSize: 34, fontWeight: 950, letterSpacing: '-0.04em',
