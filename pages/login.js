@@ -23,18 +23,40 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     setMsg({ text: '', type: '' });
-    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+
+    // Server-side rate limited login
+    const r = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email.trim(), password }),
+    }).catch(() => null);
+
     setLoading(false);
 
-    if (error) {
-      const m = String(error.message || '');
-      // Supabase/Auth may return variations; normalize to a friendly message
+    if (!r) return setMessage('Falha de rede. Tente novamente.', 'error');
+
+    if (!r.ok) {
+      const j = await r.json().catch(() => ({}));
+      const m = String(j?.error || '');
+
+      if (r.status === 429 || j?.locked) {
+        const mins = j?.retryAfterSeconds ? Math.max(1, Math.ceil(j.retryAfterSeconds / 60)) : 10;
+        return setMessage(`Muitas tentativas de login. Por segurança, tente novamente em ${mins} minuto(s) ou redefina sua senha.`, 'error');
+      }
+
       if (/not\s*confirmed|confirm/i.test(m)) {
         return setMessage('Você precisa confirmar seu e-mail antes de entrar. Verifique sua caixa de entrada e spam.', 'error');
       }
-      return setMessage(error.message, 'error');
+
+      return setMessage(m || 'E-mail ou senha inválidos.', 'error');
     }
 
+    const j = await r.json().catch(() => null);
+    if (!j?.access_token || !j?.refresh_token) {
+      return setMessage('Erro ao iniciar sessão. Tente novamente.', 'error');
+    }
+
+    await supabase.auth.setSession({ access_token: j.access_token, refresh_token: j.refresh_token });
     window.location.href = '/';
   }
 
