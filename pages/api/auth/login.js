@@ -63,10 +63,12 @@ export default async function handler(req, res) {
       }
       attempts.set(k, cur);
 
-      return res.status(401).json({
+      const locked = Boolean(cur.lockedUntil && now < cur.lockedUntil);
+      return res.status(locked ? 429 : 401).json({
         error: error.message,
         attempts: cur.count,
-        locked: Boolean(cur.lockedUntil && now < cur.lockedUntil),
+        maxAttempts,
+        locked,
         retryAfterSeconds: cur.lockedUntil ? Math.ceil((cur.lockedUntil - now) / 1000) : 0,
       });
     }

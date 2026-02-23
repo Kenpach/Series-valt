@@ -39,13 +39,21 @@ export default function Login() {
       const j = await r.json().catch(() => ({}));
       const m = String(j?.error || '');
 
+      const attempts = typeof j?.attempts === 'number' ? j.attempts : null;
+      const maxAttempts = typeof j?.maxAttempts === 'number' ? j.maxAttempts : 6;
+
       if (r.status === 429 || j?.locked) {
         const mins = j?.retryAfterSeconds ? Math.max(1, Math.ceil(j.retryAfterSeconds / 60)) : 10;
-        return setMessage(`Muitas tentativas de login. Por segurança, tente novamente em ${mins} minuto(s) ou redefina sua senha.`, 'error');
+        return setMessage(`Muitas tentativas de login (${maxAttempts}/${maxAttempts}). Por segurança, tente novamente em ${mins} minuto(s) ou redefina sua senha.`, 'error');
       }
 
       if (/not\s*confirmed|confirm/i.test(m)) {
         return setMessage('Você precisa confirmar seu e-mail antes de entrar. Verifique sua caixa de entrada e spam.', 'error');
+      }
+
+      // Show counter before lock
+      if (attempts && attempts > 0 && attempts < maxAttempts) {
+        return setMessage(`E-mail ou senha inválidos. Tentativa ${attempts}/${maxAttempts}.`, 'error');
       }
 
       return setMessage(m || 'E-mail ou senha inválidos.', 'error');
