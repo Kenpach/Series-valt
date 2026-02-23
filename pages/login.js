@@ -90,6 +90,23 @@ export default function Login() {
             Anime Tracker
           </h1>
           <p style={{ color: 'var(--muted)', fontSize: 14 }}>Sua lista, do seu jeito.</p>
+
+          {/* What is this */}
+          <div style={{ marginTop: 14, maxWidth: 520, marginInline: 'auto', color: 'var(--faint)', fontSize: 13, lineHeight: 1.6 }}>
+            <div style={{ marginBottom: 8, fontWeight: 800, color: 'rgba(238,240,250,0.92)' }}>O que é?</div>
+            <div>
+              Um app simples pra você organizar o que quer assistir e o que já está vendo — <b>Anime</b>, <b>Séries</b> e <b>Filmes</b> — sem planilha.
+            </div>
+            <div style={{ marginTop: 10, fontWeight: 800, color: 'rgba(238,240,250,0.92)' }}>Objetivo</div>
+            <ul style={{ margin: '8px 0 0', paddingLeft: 18 }}>
+              <li>Manter seu progresso (status, temporada/episódio) e facilitar voltar de onde parou.</li>
+              <li>Buscar títulos rapidamente e adicionar em 1 clique.</li>
+              <li>Compartilhar sua lista com um link público (opcional e controlado).</li>
+            </ul>
+            <div style={{ marginTop: 10 }}>
+              <b>Privacidade:</b> sua lista é privada por padrão. Compartilhamento só quando você gerar um link.
+            </div>
+          </div>
         </div>
 
         <div className="card" style={{ padding: 28 }}>
