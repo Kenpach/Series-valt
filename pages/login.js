@@ -25,7 +25,16 @@ export default function Login() {
     setMsg({ text: '', type: '' });
     const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
     setLoading(false);
-    if (error) return setMessage(error.message, 'error');
+
+    if (error) {
+      const m = String(error.message || '');
+      // Supabase/Auth may return variations; normalize to a friendly message
+      if (/not\s*confirmed|confirm/i.test(m)) {
+        return setMessage('Você precisa confirmar seu e-mail antes de entrar. Verifique sua caixa de entrada e spam.', 'error');
+      }
+      return setMessage(error.message, 'error');
+    }
+
     window.location.href = '/';
   }
 
@@ -58,6 +67,18 @@ export default function Login() {
       setMessage(`Erro: ${e?.message || String(e)}`, 'error');
     } finally {
       setTimeout(() => setResetState('idle'), 3000);
+    }
+  }
+
+  async function resendConfirmation() {
+    try {
+      const em = email.trim();
+      if (!em) return setMessage('Informe seu e-mail para reenviar a confirmação.', 'error');
+      const { error } = await supabase.auth.resend({ type: 'signup', email: em });
+      if (error) throw error;
+      setMessage('E-mail de confirmação reenviado. Verifique sua caixa de entrada e spam.', 'success');
+    } catch (e) {
+      setMessage(`Erro: ${e?.message || String(e)}`, 'error');
     }
   }
 
@@ -188,6 +209,19 @@ export default function Login() {
                 fontSize: 13, fontWeight: 600, lineHeight: 1.5,
               }}>
                 {msg.text}
+
+                {msg.type === 'error' && /confirmar seu e-mail/i.test(msg.text) ? (
+                  <div style={{ marginTop: 10 }}>
+                    <button
+                      className="btn ghost"
+                      type="button"
+                      onClick={resendConfirmation}
+                      style={{ width: '100%', justifyContent: 'center', fontSize: 13 }}
+                    >
+                      Reenviar e-mail de confirmação
+                    </button>
+                  </div>
+                ) : null}
               </div>
             ) : null}
           </div>
