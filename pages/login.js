@@ -87,7 +87,7 @@ export default function Login() {
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
             marginBottom: 8,
           }}>
-            Anime Tracker
+            Series Vault
           </h1>
           <p style={{ color: 'var(--muted)', fontSize: 14 }}>Sua lista, do seu jeito.</p>
 
@@ -171,7 +171,7 @@ export default function Login() {
         </div>
 
         <p style={{ textAlign: 'center', marginTop: 20, fontSize: 12, color: 'var(--faint)' }}>
-          Anime Tracker — MVP v1
+          Series Vault — MVP v1
         </p>
       </div>
     </div>
