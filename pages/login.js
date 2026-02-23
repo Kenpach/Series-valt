@@ -45,7 +45,7 @@ export default function Login() {
     const { error } = await supabase.auth.signUp({ email: email.trim(), password });
     setLoading(false);
     if (error) return setMessage(error.message, 'error');
-    setMessage('Conta criada! Verifique sua caixa de entrada para confirmar.', 'success');
+    setMessage('Conta criada — você só conseguirá entrar após confirmar o e-mail. Verifique sua caixa de entrada e spam.', 'success');
   }
 
   async function resetPassword() {
